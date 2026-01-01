@@ -6,9 +6,9 @@ import uuid
 from datetime import datetime
 from azure.storage.blob import BlobServiceClient
 
-# ------------------------------------------------------------------------------
+
 # CONFIGURACIÓN
-# ------------------------------------------------------------------------------
+
 STORAGE_ACCOUNT_NAME = os.getenv("STORAGE_ACCOUNT_NAME")
 STORAGE_ACCOUNT_KEY = os.getenv("STORAGE_ACCOUNT_KEY")
 CONTAINER_NAME = "raw"
@@ -104,7 +104,7 @@ def ingesta_raw(req: func.HttpRequest) -> func.HttpResponse:
         )
 
 
-    # 6. Respuesta OK
+    # 6. Respuesta Ok
    
     return func.HttpResponse(
         json.dumps({
