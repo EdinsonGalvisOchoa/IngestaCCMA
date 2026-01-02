@@ -13,7 +13,7 @@ CONTAINER_NAME = "raw"
 BASE_PATH = "ingesta_ccma"
 
 # x-api-key propia (opcional)
-EXPECTED_X_API_KEY = os.getenv("X_API_KEY")  # ponla en App Settings
+EXPECTED_X_API_KEY = os.getenv("API_REQUEST_KEY")  # ponla en App Settings
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
