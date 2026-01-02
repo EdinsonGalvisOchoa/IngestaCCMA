@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 from azure.storage.blob import BlobServiceClient
 
-# CONFIGURACIÓN
+# CONFIGURACIÓN V3
 STORAGE_ACCOUNT_NAME = os.getenv("STORAGE_ACCOUNT_NAME")
 STORAGE_ACCOUNT_KEY = os.getenv("STORAGE_ACCOUNT_KEY")
 CONTAINER_NAME = "raw"
