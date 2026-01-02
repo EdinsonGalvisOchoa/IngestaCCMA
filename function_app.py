@@ -9,7 +9,7 @@ from azure.storage.blob import BlobServiceClient
 # CONFIGURACIÓN (desde Azure Application settings)
 STORAGE_ACCOUNT_NAME = os.getenv("STORAGE_ACCOUNT_NAME")
 STORAGE_ACCOUNT_KEY = os.getenv("STORAGE_ACCOUNT_KEY")
-API_REQUEST_KEY = os.getenv("API_REQUEST_KEY")  # <-- TU x-api-key server-side
+API_REQUEST_KEY = os.getenv("API_REQUEST_KEY")  # <-- x-api-key server-side
 
 CONTAINER_NAME = "raw"
 BASE_PATH = "ingesta_ccma"
