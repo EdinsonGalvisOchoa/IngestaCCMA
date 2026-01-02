@@ -6,27 +6,49 @@ import uuid
 from datetime import datetime
 from azure.storage.blob import BlobServiceClient
 
-
-# CONFIGURACIÓN
-
+# CONFIGURACIÓN (desde Azure Application settings)
 STORAGE_ACCOUNT_NAME = os.getenv("STORAGE_ACCOUNT_NAME")
 STORAGE_ACCOUNT_KEY = os.getenv("STORAGE_ACCOUNT_KEY")
+API_REQUEST_KEY = os.getenv("API_REQUEST_KEY")  # <-- TU x-api-key server-side
+
 CONTAINER_NAME = "raw"
 BASE_PATH = "ingesta_ccma"
 
-
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
-
-
-# ENDPOINT
 
 @app.route(route="ingesta_raw", methods=["POST"])
 def ingesta_raw(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("Iniciando ingesta RAW")
 
-    
+
+    # VALIDAR x-api-key
+
+    client_key = req.headers.get("x-api-key")
+
+    if not API_REQUEST_KEY:
+        logging.error("API_REQUEST_KEY no configurada en Application Settings")
+        return func.HttpResponse(
+            "API_REQUEST_KEY no configurada",
+            status_code=500
+        )
+
+    if not client_key or client_key != API_REQUEST_KEY:
+        logging.warning("Acceso no autorizado (x-api-key inválida o faltante)")
+        return func.HttpResponse(
+            "Unauthorized",
+            status_code=401
+        )
+
+    # Validar storage config
+
+    if not STORAGE_ACCOUNT_NAME or not STORAGE_ACCOUNT_KEY:
+        logging.error("STORAGE_ACCOUNT_NAME o STORAGE_ACCOUNT_KEY no configuradas")
+        return func.HttpResponse(
+            "Storage no configurado",
+            status_code=500
+        )
+
     # 1. Leer JSON
-  
     try:
         body = req.get_json()
     except ValueError:
@@ -35,9 +57,7 @@ def ingesta_raw(req: func.HttpRequest) -> func.HttpResponse:
             status_code=400
         )
 
-
     # 2. Validar campos obligatorios
- 
     required_fields = ["nit", "empresa", "ciiu"]
     missing = [f for f in required_fields if f not in body]
 
@@ -47,9 +67,7 @@ def ingesta_raw(req: func.HttpRequest) -> func.HttpResponse:
             status_code=400
         )
 
-
     # 3. Construir payload RAW (data + metadata)
-   
     now = datetime.utcnow()
 
     payload = {
@@ -61,9 +79,7 @@ def ingesta_raw(req: func.HttpRequest) -> func.HttpResponse:
         "data": body
     }
 
-
     # 4. Construir path particionado (year/month/day)
-   
     year = now.strftime("%Y")
     month = now.strftime("%m")
     day = now.strftime("%d")
@@ -77,9 +93,7 @@ def ingesta_raw(req: func.HttpRequest) -> func.HttpResponse:
         f"{filename}"
     )
 
-
-    # 5. Conexión a ADLS Gen2
-
+    # 5. Conexión a storage y upload
     try:
         blob_service_client = BlobServiceClient(
             account_url=f"https://{STORAGE_ACCOUNT_NAME}.blob.core.windows.net",
@@ -97,15 +111,13 @@ def ingesta_raw(req: func.HttpRequest) -> func.HttpResponse:
         )
 
     except Exception as e:
-        logging.error(f"Error escribiendo en ADLS: {str(e)}")
+        logging.exception("Error escribiendo en almacenamiento")
         return func.HttpResponse(
-            "Error escribiendo en almacenamiento",
+            f"Error escribiendo en almacenamiento: {str(e)}",
             status_code=500
         )
 
-
     # 6. Respuesta Ok
-   
     return func.HttpResponse(
         json.dumps({
             "status": "ok",
