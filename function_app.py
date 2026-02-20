@@ -10,7 +10,7 @@ from azure.storage.blob import BlobServiceClient
 STORAGE_ACCOUNT_NAME = os.getenv("STORAGE_ACCOUNT_NAME")
 STORAGE_ACCOUNT_KEY = os.getenv("STORAGE_ACCOUNT_KEY")
 CONTAINER_NAME = "raw"
-BASE_PATH = "ingesta_ccma"
+BASE_PATH = "wsde/run_input"
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
