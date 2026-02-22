@@ -42,7 +42,7 @@ def ingesta_raw(req: func.HttpRequest) -> func.HttpResponse:
         )
 
     # 3. Validar campos obligatorios
-    required_fields = {"PK","nit", "empresa", "ciiu"}
+    required_fields = {"PK","nit", "empresa"}
     for i, row in enumerate(rows):
         if not required_fields.issubset(row):
             return func.HttpResponse(
