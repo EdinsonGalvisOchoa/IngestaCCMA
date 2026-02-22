@@ -11,6 +11,7 @@ STORAGE_ACCOUNT_NAME = os.getenv("STORAGE_ACCOUNT_NAME")
 STORAGE_ACCOUNT_KEY = os.getenv("STORAGE_ACCOUNT_KEY")
 CONTAINER_NAME = "raw"
 BASE_PATH = "wsde/run_input"
+FILE_PREFIX = "run_input"
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
@@ -41,7 +42,7 @@ def ingesta_raw(req: func.HttpRequest) -> func.HttpResponse:
         )
 
     # 3. Validar campos obligatorios
-    required_fields = {"nit", "empresa", "ciiu"}
+    required_fields = {"PK","nit", "empresa", "ciiu"}
     for i, row in enumerate(rows):
         if not required_fields.issubset(row):
             return func.HttpResponse(
@@ -62,12 +63,13 @@ def ingesta_raw(req: func.HttpRequest) -> func.HttpResponse:
     }
 
     # 5. Path particionado
+
     blob_path = (
         f"{BASE_PATH}/"
         f"year={now:%Y}/"
         f"month={now:%m}/"
         f"day={now:%d}/"
-        f"ingest_{now:%Y%m%d_%H%M%S}.json"
+        f"{FILE_PREFIX}_{now:%Y%m%d_%H%M%S}.json"
     )
 
     # 6. Guardar en ADLS
