@@ -4,6 +4,7 @@ import json
 import os
 import uuid
 from datetime import datetime
+import pytz
 from azure.storage.blob import BlobServiceClient
 
 # CONFIGURACIÓN V3
@@ -51,7 +52,7 @@ def ingesta_raw(req: func.HttpRequest) -> func.HttpResponse:
             )
 
     # 4. Construir payload RAW
-    now = datetime.utcnow()
+    now = datetime.now(pytz.timezone("America/Bogota"))
     payload = {
         "metadata": {
             "ingest_id": str(uuid.uuid4()),
